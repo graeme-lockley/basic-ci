@@ -59,17 +59,18 @@ class Task
     Dir["#{pipeline_dir}/ci-pipeline/tasks/#{pipeline_name.nil? ? '' : (pipeline_name + '-')}*"].map { |t| Task.new t }
   end
 
-  def initialize(name)
-    @name = name
+  def initialize(full_name)
+    @name = full_name.split('/').last
+    @full_name = full_name
   end
 
   def execute
-    log_file_name = @name.sub("tasks", "logs") + ".log"
+    log_file_name = @full_name.sub("tasks", "logs") + ".log"
     start_time = Time.new
     open(log_file_name, "a") { |f|
 	    f.puts "Starting Task: #{start_time.to_s}"
     }
-    @success = system "(#{@name}) 2>&1 | tee -a #{log_file_name} ; ( exit ${PIPESTATUS[0]} )"
+    @success = system "(#{@full_name}) 2>&1 | tee -a #{log_file_name} ; ( exit ${PIPESTATUS[0]} )"
     @return_code = $?
     end_time = Time.new
     open(log_file_name, "a") { |f|
@@ -81,6 +82,10 @@ class Task
     @name
   end
 
+  def full_name
+    @full_name
+  end
+
   def errors?
     !@success
   end
@@ -90,7 +95,7 @@ class Task
   end
 
   def info
-    system "#{@name} info"
+    system "#{@full_name} info"
   end
 end
 

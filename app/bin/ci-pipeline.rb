@@ -109,7 +109,7 @@ class Pipeline
 
   def run
     tasks.each do |task|
-      runTask(task, false)
+      run_task(task, false)
     end
     @settings.complete
   end
@@ -121,13 +121,13 @@ class Pipeline
       if task.name < failed_task
         @listener.skipping_task task
       else
-        runTask(task, failed_task == task.name)
+        run_task(task, failed_task == task.name)
       end
     end
     @settings.complete
   end
 
-  def runTask(task, retry_flag)
+  def run_task(task, retry_flag)
     @listener.start_task task
     @settings.set_state(task.name, 'running')
     task.execute

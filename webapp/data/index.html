@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+
+<html lang="en" ng-app="basicCI">
+<head>
+    <title>BasicCI</title>
+    <script src="bower_components/angularjs/angular.js"></script>
+</head>
+<body>
+<div ng-controller="CICtrl">
+    <h2>Projects</h2>
+    <table>
+        <tr ng-repeat="project in projects">
+            <td> {{ project.name }}</td>
+        </tr>
+    </table>
+</div>
+<script src="js/ciController.js"></script>
+</body>
+</html>

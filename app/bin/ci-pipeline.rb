@@ -52,8 +52,8 @@ class Settings
 end
 
 class Task
-  def self.tasks
-    Dir["ci-pipeline/tasks/*"].map { |t| Task.new t }
+  def self.tasks(pipeline_dir, pipeline_name)
+    Dir["#{pipeline_dir}/ci-pipeline/tasks/#{pipeline_name.nil? ? '' : (pipeline_name + '-')}*"].map { |t| Task.new t }
   end
 
   def initialize(name)
@@ -92,13 +92,15 @@ class Task
 end
 
 class Pipeline
-  def initialize(listener, settings)
+  def initialize(pipeline_dir, pipeline_name, listener, settings)
+    @pipeline_dir = pipeline_dir
+    @pipeline_name = pipeline_name
     @listener = listener
     @settings = settings
   end
 
   def tasks
-    Task.tasks
+    Task.tasks(@pipeline_dir, @pipeline_name)
   end
 
   def has_tasks?
@@ -158,14 +160,24 @@ class LoggerListener
 end
 
 logger = Logger.new(STDOUT)
+pipeline_dir = '.'
+pipeline_name = nil
+
 if ARGV.length > 0
   settings = Settings.new
   listener = LoggerListener.new(logger)
 
+  if %w(run status reset retry info).select { |x| x == ARGV[0] }.count == 0
+    args = ARGV[0].split(':')
+    pipeline_dir = args[0]
+    pipeline_name = args[1] if args.length > 1
+    ARGV.delete_at 0
+  end
+
   case ARGV[0]
     when 'run'
       if settings.ready?
-        phase = Pipeline.new(listener, settings)
+        phase = Pipeline.new(pipeline_dir, pipeline_name, listener, settings)
 
         if phase.has_tasks?
           phase.run
@@ -186,7 +198,7 @@ if ARGV.length > 0
       if settings.ready?
         logger.error "The pipeline is healthy and does not need to be recovered"
       else
-        phase = Pipeline.new(listener, settings)
+        phase = Pipeline.new(pipeline_dir, pipeline_name, listener, settings)
 
         if phase.has_tasks?
           phase.retry
@@ -195,7 +207,7 @@ if ARGV.length > 0
         end
       end
     when 'info'
-      Task.tasks.each{ |task| 
+      Task.tasks(pipeline_dir, pipeline_name).each{ |task|
         task.info
       }
     else
@@ -203,7 +215,13 @@ if ARGV.length > 0
       exit 1
   end
 else
-  logger.error "Argument expected"
+  logger.error "Argument expected: [pipeline_tasks_home[:pipeline_name]] command"
+  logger.info "The pipeline_home is the directory where the pipeline tasks are located.  If this argument is not supplied"
+  logger.info "the script will attempt to locate a directory ci-pipeline in the current directory or in any of the current"
+  logger.info "directory's parent directory.  The pipeline_name, which defaults to blank, can optionally be specified to"
+  logger.info "reference an alternative set of pipline scripts to be used."
+  logger.info ""
+  logger.info "The following commands are supported:"
   logger.info "  reset - resets the pipeline's state so that it can be re-run."
   logger.info "  retry - retries to run the pipeline from the previously failed task."
   logger.info "  run - runs the pipeline.  If the pipeline previously failed then this command will itself fail."

@@ -5,9 +5,11 @@ require 'yaml'
 require 'json'
 
 class Settings
-  def initialize
-    if File.exists? '.ci-status'
-      @config = YAML::load_file '.ci-status'
+  def initialize(home_dir)
+    @file_name = "#{home_dir.nil? ? '.' : home_dir}/.ci-status"
+
+    if File.exists? @file_name
+      @config = YAML::load_file @file_name
     else
       reset
     end
@@ -32,7 +34,7 @@ class Settings
   end
 
   def save_settings
-    File.open('.ci-status', 'w') { |f| f.write @config.to_yaml }
+    File.open(@file_name, 'w') { |f| f.write @config.to_yaml }
   end
 
   def set_state(current_task, status)
@@ -165,15 +167,15 @@ pipeline_dir = '.'
 pipeline_name = nil
 
 if ARGV.length > 0
-  settings = Settings.new
-  listener = LoggerListener.new(logger)
-
   if %w(run status reset retry info).select { |x| x == ARGV[0] }.count == 0
     args = ARGV[0].split(':')
     pipeline_dir = args[0]
     pipeline_name = args[1] if args.length > 1
     ARGV.delete_at 0
   end
+
+  settings = Settings.new(pipeline_dir)
+  listener = LoggerListener.new(logger)
 
   case ARGV[0]
     when 'run'

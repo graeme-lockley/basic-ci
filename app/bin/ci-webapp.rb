@@ -22,8 +22,16 @@ class Workspace
     Projects.new self
   end
 
+  def project(name)
+    Project.new(self, name)
+  end
+
   def pipeline_names(project_name)
-    Dir["#{@home_dir}/workspace/#{project_name}/rc*"].map { |dir| dir.split('/').last }
+    Dir["#{@home_dir}/#{project_name}/rc*"].map { |dir| dir.split('/').last }
+  end
+
+  def pipeline_home_dir(project_name, pipeline_name)
+    "#{@home_dir}/#{project_name}/#{pipeline_name}"
   end
 end
 
@@ -47,6 +55,10 @@ class Project
     @name = name
   end
 
+  def name
+    @name
+  end
+
   def to_map
     {:id => @name, :name => @name}
   end
@@ -56,7 +68,7 @@ class Project
   end
 
   def pipelines
-    @workspace.pipeline_names(@name).map{ |name| Pipeline.new(@workspace, self, name) }
+    @workspace.pipeline_names(@name).map { |name| Pipeline.new(@workspace, self, name) }
   end
 end
 
@@ -65,6 +77,21 @@ class Pipeline
     @workspace = workspace
     @project = project
     @name = name
+
+    refresh_status
+  end
+
+  def home_dir
+    @workspace.pipeline_home_dir(@project.name, @name)
+  end
+
+  def to_map
+    {:project_name => @project, :name => @name, :status => @status}
+  end
+
+  def refresh_status
+    puts "#{File.dirname(__FILE__)}/ci-pipeline.rb #{home_dir}/#{@project.name} status"
+    @status = JSON.parse(`#{File.dirname(__FILE__)}/ci-pipeline.rb #{home_dir}/#{@project.name} status`)
   end
 end
 
@@ -78,6 +105,12 @@ get '/api/projects' do
   content_type :json
 
   workspace.projects.all.map { |x| x.to_map }.to_json
+end
+
+get '/api/projects/:name/pipelines' do
+  content_type :json
+
+  workspace.project(params[:name]).pipelines.map { |p| p.to_map }.to_json
 end
 
 get '/api/projects/:name' do

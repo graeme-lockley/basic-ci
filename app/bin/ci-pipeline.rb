@@ -2,6 +2,7 @@
 
 require 'logger'
 require 'yaml'
+require 'json'
 
 class Settings
   def initialize
@@ -47,7 +48,7 @@ class Settings
   end
 
   def show
-    puts YAML.dump(@config)
+    puts JSON.dump(@config)
   end
 end
 

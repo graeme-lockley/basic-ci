@@ -15,11 +15,15 @@ class Workspace
   end
 
   def project_names
-    Dir[@home_dir + "/*"].map{ |dir| dir.split("/").last }
+    Dir["#{@home_dir}/*"].map { |dir| dir.split('/').last }
   end
 
   def projects
     Projects.new self
+  end
+
+  def pipeline_names(project_name)
+    Dir["#{@home_dir}/workspace/#{project_name}/rc*"].map { |dir| dir.split('/').last }
   end
 end
 
@@ -29,16 +33,17 @@ class Projects
   end
 
   def all
-    @workspace.project_names.map { |name| Project.new name }
+    @workspace.project_names.map { |name| Project.new(@workspace, name) }
   end
 
   def project(name)
-    Project.new name
+    Project.new(@workspace, name)
   end
 end
 
 class Project
-  def initialize(name)
+  def initialize(workspace, name)
+    @workspace = workspace
     @name = name
   end
 
@@ -51,12 +56,16 @@ class Project
   end
 
   def pipelines
-    Dir
+    @workspace.pipeline_names(@name).map{ |name| Pipeline.new(@workspace, self, name) }
   end
 end
 
 class Pipeline
-
+  def initialize(workspace, project, name)
+    @workspace = workspace
+    @project = project
+    @name = name
+  end
 end
 
 workspace = Workspace.new File.join (File.dirname(__FILE__) + "/../../workspace")

@@ -11,6 +11,12 @@
     <table>
         <tr ng-repeat="project in projects">
             <td> {{ project.name }} </td>
+            <td> {{ project.last_status.state_date }} </td>
+            <td> {{ project.last_status.name }} </td>
+            <td> {{ project.last_status.status }} </td>
+            <td> {{ project.last_status.date }} </td>
+            <td> {{ project.last_status.date }} </td>
+            <td> {{ project.last_status.task }} </td>
         </tr>
     </table>
 </div>

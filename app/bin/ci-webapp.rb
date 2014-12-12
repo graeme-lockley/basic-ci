@@ -109,8 +109,8 @@ get '/api/projects' do
       x.to_map
     else
       x.to_map.merge({last_status: last_pipeline.to_map})
-    end.to_json
-  end
+    end
+  end.to_json
 end
 
 get '/api/projects/:name/pipelines' do

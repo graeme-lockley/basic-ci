@@ -90,7 +90,11 @@ class Pipeline
   end
 
   def refresh_status
-    @status = JSON.parse(`#{File.dirname(__FILE__)}/ci-pipeline.rb #{home_dir}/#{@project.name} status`)
+    begin
+      @status = JSON.parse(`#{File.dirname(__FILE__)}/ci-pipeline.rb #{home_dir}/#{@project.name} status`)
+    rescue
+      @status = {}
+    end
   end
 end
 

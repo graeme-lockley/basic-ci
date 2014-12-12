@@ -97,7 +97,32 @@ class Task
   end
 
   def info
-    system "#{@full_name} info"
+    result = `#{@full_name} info`
+    puts result
+  end
+
+  def info_map
+    s = {}
+    result = `#{@full_name} info`
+    result_lines = result.split(/\r?\n/)
+
+    if result_lines.length >= 1
+      index_of_colon = result_lines[0].index(':')
+      if index_of_colon.nil?
+        s["task"] = result_lines[0]
+      else
+        s["task"] = result_lines[0][0 .. (index_of_colon - 1)]
+        s["description"] = result_lines[0][(index_of_colon+1) .. result_lines[0].length].strip
+      end
+
+      params = result_lines[1 .. result_lines.length].map do |x|
+        components = x.split(':').map{|a| a.strip}
+        {name: components[1], type: components[2], description: components[3]}
+      end
+      s["params"] = params if !params.nil? && params.length > 0
+    end
+
+    {name: @name, full_name: @full_name}.merge s
   end
 end
 
@@ -174,7 +199,7 @@ pipeline_dir = '.'
 pipeline_name = nil
 
 if ARGV.length > 0
-  if %w(run status reset retry info).select { |x| x == ARGV[0] }.count == 0
+  if %w(run status reset retry info json-info).select { |x| x == ARGV[0] }.count == 0
     args = ARGV[0].split(':')
     pipeline_dir = args[0]
     pipeline_name = args[1] if args.length > 1
@@ -220,6 +245,8 @@ if ARGV.length > 0
       Task.tasks(pipeline_dir, pipeline_name).each { |task|
         task.info
       }
+    when 'json-info'
+      puts Task.tasks(pipeline_dir, pipeline_name).map { |task| task.info_map }.to_json
     else
       logger.error "Unknown command #{ARGV[0]}"
       exit 1
@@ -233,6 +260,7 @@ else
   logger.info ''
   logger.info 'The following commands are supported:'
   logger.info '  info - describes each of the tasks within the pipeline and any necessary preconditions per task.'
+  logger.info '  json-info - describes each of the tasks within the pipeline and any necessary preconditions per task producing a json output.'
   logger.info "  reset - resets the pipeline's state so that it can be re-run."
   logger.info '  retry - retries to run the pipeline from the previously failed task.'
   logger.info '  run - runs the pipeline.  If the pipeline previously failed then this command will itself fail.'

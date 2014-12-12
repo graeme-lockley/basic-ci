@@ -86,7 +86,7 @@ class Pipeline
   end
 
   def to_map
-    {:project_name => @project, :name => @name}.merge(@status)
+    {:project_name => @project, :name => @name, :description => description}.merge(@status)
   end
 
   def refresh_status
@@ -95,6 +95,17 @@ class Pipeline
     rescue
       @status = {}
     end
+  end
+
+  def description
+    if @description.nil?
+      begin
+        @description = JSON.parse(`#{File.dirname(__FILE__)}/ci-pipeline.rb #{home_dir}/#{@project.name} json-info`)
+      rescue
+        @description = []
+      end
+    end
+    @description
   end
 end
 

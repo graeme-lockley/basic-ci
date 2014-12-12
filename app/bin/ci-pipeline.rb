@@ -67,16 +67,16 @@ class Task
   end
 
   def execute
-    log_file_name = @full_name.sub("tasks", "logs") + ".log"
+    log_file_name = @full_name.sub('tasks', 'logs') + '.log'
     start_time = Time.new
-    open(log_file_name, "a") { |f|
-	    f.puts "Starting Task: #{start_time.to_s}"
+    open(log_file_name, 'a') { |f|
+      f.puts "Starting Task: #{start_time.to_s}"
     }
     @success = system "(#{@full_name}) 2>&1 | tee -a #{log_file_name} ; ( exit ${PIPESTATUS[0]} )"
     @return_code = $?
     end_time = Time.new
-    open(log_file_name, "a") { |f|
-	    f.puts "Ending Task: #{end_time.to_s} (#{end_time - start_time}s): Return Code: #{@return_code}"
+    open(log_file_name, 'a') { |f|
+      f.puts "Ending Task: #{end_time.to_s} (#{end_time - start_time}s): Return Code: #{@return_code}"
     }
   end
 
@@ -119,7 +119,7 @@ class Pipeline
 
   def run
     tasks.each do |task|
-      run_task(task, false)
+      run_task task
     end
     @settings.complete
   end
@@ -131,13 +131,13 @@ class Pipeline
       if task.name < failed_task
         @listener.skipping_task task
       else
-        run_task(task, failed_task == task.name)
+        run_task task
       end
     end
     @settings.complete
   end
 
-  def run_task(task, retry_flag)
+  def run_task(task)
     @listener.start_task task
     @settings.set_state(task.name, 'running')
     task.execute
@@ -192,32 +192,32 @@ if ARGV.length > 0
         if phase.has_tasks?
           phase.run
         else
-          logger.info " No tasks - pipeline completed"
+          logger.info ' No tasks - pipeline completed'
         end
       else
-        logger.error "The pipeline failed on a previous task and cannot be run."
+        logger.error 'The pipeline failed on a previous task and cannot be run.'
         settings.show
         exit 1
       end
     when 'status'
       settings.show
     when 'reset'
-      logger.info "Pipeline has been reset"
+      logger.info 'Pipeline has been reset'
       settings.reset
     when 'retry'
       if settings.ready?
-        logger.error "The pipeline is healthy and does not need to be recovered"
+        logger.error 'The pipeline is healthy and does not need to be recovered'
       else
         phase = Pipeline.new(pipeline_dir, pipeline_name, listener, settings)
 
         if phase.has_tasks?
           phase.retry
         else
-          logger.info "No tasks - pipeline completed"
+          logger.info 'No tasks - pipeline completed'
         end
       end
     when 'info'
-      Task.tasks(pipeline_dir, pipeline_name).each{ |task|
+      Task.tasks(pipeline_dir, pipeline_name).each { |task|
         task.info
       }
     else
@@ -225,17 +225,17 @@ if ARGV.length > 0
       exit 1
   end
 else
-  logger.error "Argument expected: [pipeline_tasks_home[:pipeline_name]] command"
-  logger.info "The pipeline_home is the directory where the pipeline tasks are located.  If this argument is not supplied"
-  logger.info "the script will attempt to locate a directory ci-pipeline in the current directory or in any of the current"
+  logger.error 'Argument expected: [pipeline_tasks_home[:pipeline_name]] command'
+  logger.info 'The pipeline_home is the directory where the pipeline tasks are located.  If this argument is not supplied'
+  logger.info 'the script will attempt to locate a directory ci-pipeline in the current directory or in any of the current'
   logger.info "directory's parent directory.  The pipeline_name, which defaults to blank, can optionally be specified to"
-  logger.info "reference an alternative set of pipline scripts to be used."
-  logger.info ""
-  logger.info "The following commands are supported:"
-  logger.info "  info - describes each of the tasks within the pipeline and any necessary preconditions per task."
+  logger.info 'reference an alternative set of pipeline scripts to be used.'
+  logger.info ''
+  logger.info 'The following commands are supported:'
+  logger.info '  info - describes each of the tasks within the pipeline and any necessary preconditions per task.'
   logger.info "  reset - resets the pipeline's state so that it can be re-run."
-  logger.info "  retry - retries to run the pipeline from the previously failed task."
-  logger.info "  run - runs the pipeline.  If the pipeline previously failed then this command will itself fail."
-  logger.info "  status - shows the status of the pipeline."
+  logger.info '  retry - retries to run the pipeline from the previously failed task.'
+  logger.info '  run - runs the pipeline.  If the pipeline previously failed then this command will itself fail.'
+  logger.info '  status - shows the status of the pipeline.'
   exit 1
 end

@@ -86,11 +86,10 @@ class Pipeline
   end
 
   def to_map
-    {:project_name => @project, :name => @name, :status => @status}
+    {:project_name => @project, :name => @name}.merge(@status)
   end
 
   def refresh_status
-    puts "#{File.dirname(__FILE__)}/ci-pipeline.rb #{home_dir}/#{@project.name} status"
     @status = JSON.parse(`#{File.dirname(__FILE__)}/ci-pipeline.rb #{home_dir}/#{@project.name} status`)
   end
 end
@@ -104,7 +103,14 @@ end
 get '/api/projects' do
   content_type :json
 
-  workspace.projects.all.map { |x| x.to_map }.to_json
+  workspace.projects.all.map do |x|
+    last_pipeline = x.pipelines.last
+    if last_pipeline.nil?
+      x.to_map
+    else
+      x.to_map.merge({last_status: last_pipeline.to_map})
+    end.to_json
+  end
 end
 
 get '/api/projects/:name/pipelines' do

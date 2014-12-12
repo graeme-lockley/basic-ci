@@ -18,6 +18,7 @@ class Settings
   def reset
     @config = {}
     @config['status'] = 'ready'
+    @config['start_date'] = Time.new.to_s
     save_settings
   end
 
@@ -34,6 +35,7 @@ class Settings
   end
 
   def save_settings
+    @config['date'] = Time.new.to_s
     File.open(@file_name, 'w') { |f| f.write @config.to_yaml }
   end
 
@@ -230,6 +232,7 @@ else
   logger.info "reference an alternative set of pipline scripts to be used."
   logger.info ""
   logger.info "The following commands are supported:"
+  logger.info "  info - describes each of the tasks within the pipeline and any necessary preconditions per task."
   logger.info "  reset - resets the pipeline's state so that it can be re-run."
   logger.info "  retry - retries to run the pipeline from the previously failed task."
   logger.info "  run - runs the pipeline.  If the pipeline previously failed then this command will itself fail."

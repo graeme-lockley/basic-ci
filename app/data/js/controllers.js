@@ -8,6 +8,11 @@ ciControllers.controller("ProjectsCtrl", function ($scope, $http) {
     });
 });
 
-ciControllers.controller("ProjectDetailCtrl", function($scope, $http, $routeParams) {
-   $scope.projectID = $routeParams.projectID;
+ciControllers.controller("ProjectDetailCtrl", function ($scope, $http, $routeParams) {
+    $scope.projectID = $routeParams.projectID;
+
+    var promise = $http.get("/api/projects/" + $scope.projectID + "/pipelines")
+    promise.success(function (response) {
+        $scope.project = response;
+    });
 });

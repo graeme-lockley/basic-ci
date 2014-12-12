@@ -1,1 +1,17 @@
-TBD: project view: {{ projectID }}
+<h2> {{ projectID }} </h2>
+
+
+<div ng-repeat="pipeline in project">
+    <div>
+        <div> {{ pipeline.name }}</div>
+        <div> {{ pipeline.state_date }}</div>
+        <div> {{ pipeline.status }}</div>
+        <div> {{ pipeline.date }}</div>
+        <div> {{ pipeline.task }}</div>
+    </div>
+    <div ng-repeat="step in pipeline.description">
+        <div>{{step.name}}</div>
+        <div>{{step.task}}</div>
+        <div>{{step.description}}</div>
+    </div>
+</div>

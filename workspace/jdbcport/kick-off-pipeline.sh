@@ -15,4 +15,4 @@ cd $RC_BRANCH_NAME
 
 git clone https://github.com/graeme-lockley/jdbcport.git
 
-( cd jdbcport ; ./ci-pipeline.rb run )
+( cd jdbcport ; ci-pipeline.rb run )

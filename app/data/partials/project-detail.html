@@ -1,17 +1,30 @@
 <h2> {{ projectID }} </h2>
 
+<table class="table">
+    <thead>
+    <tr>
+        <th>Pipeline Branch</th>
+        <th>Pipeline Create Date</th>
+        <th>Pipeline Status</th>
+        <th>Task Date</th>
+        <th>Task Name</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-repeat="pipeline in project">
+        <td> {{ pipeline.name }}</td>
+        <td> {{ pipeline.start_date }}</td>
+        <td class="{{ pipeline.status == 'failed' ? 'danger' : pipeline.status == 'ready' ? 'success' : 'warning' }}">
+            {{ pipeline.status }}
+        </td>
+        <td> {{ pipeline.date }}</td>
+        <td> {{ pipeline.task }}</td>
+    </tr>
+    </tbody>
+</table>
 
-<div ng-repeat="pipeline in project">
-    <div>
-        <div> {{ pipeline.name }}</div>
-        <div> {{ pipeline.state_date }}</div>
-        <div> {{ pipeline.status }}</div>
-        <div> {{ pipeline.date }}</div>
-        <div> {{ pipeline.task }}</div>
-    </div>
-    <div ng-repeat="step in pipeline.description">
-        <div>{{step.name}}</div>
-        <div>{{step.task}}</div>
-        <div>{{step.description}}</div>
-    </div>
-</div>
+<!--<div ng-repeat="step in pipeline.description">-->
+<!--<div>{{step.name}}</div>-->
+<!--<div>{{step.task}}</div>-->
+<!--<div>{{step.description}}</div>-->
+<!--</div>-->

@@ -1,5 +1,6 @@
 var ciApp = angular.module("basicCI", [
     'ngRoute',
+    'ui.bootstrap',
     'ciControllers'
 ]);
 

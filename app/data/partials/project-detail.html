@@ -1,6 +1,6 @@
 <h2> {{ projectID }} </h2>
 
-<div ng-repeat="pipeline in project" class="pipeline-detail">
+<div ng-repeat="pipeline in project | orderBy:'-name'" class="pipeline-detail">
     <div class="name"> {{ pipeline.name }}
     <span class="pipeline-status {{ pipeline.status == 'failed' ? 'bg-danger' : pipeline.status == 'complete' ? 'bg-success' : 'bg-warning' }}">
         {{ pipeline.status }}

@@ -47,7 +47,7 @@ class Settings
 
   def complete
     @config.delete 'task'
-    @config['status'] = 'ready'
+    @config['status'] = 'complete'
     save_settings
   end
 

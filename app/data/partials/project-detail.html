@@ -1,19 +1,23 @@
 <h2> {{ projectID }} </h2>
 
 <div ng-repeat="pipeline in project" class="pipeline-detail">
-    <div class="name"> {{ pipeline.name }}</div>
-    <div class="date"> {{ pipeline.start_date }}</div>
-    <div class="{{ pipeline.status == 'failed' ? 'danger' : pipeline.status == 'ready' ? 'success' : 'warning' }}">
+    <div class="name"> {{ pipeline.name }}
+    <span class="pipeline-status {{ pipeline.status == 'failed' ? 'bg-danger' : pipeline.status == 'complete' ? 'bg-success' : 'bg-warning' }}">
         {{ pipeline.status }}
-    </div>
-    <div class="task-date"> {{ pipeline.date }}</div>
-    <div class="task-name"> {{ pipeline.task }}</div>
-
-    <div ng-repeat="step in pipeline.description" class="pipeline-steps">
-        <div class="step {{ taskMarkup(pipeline.status, pipeline.task, step) }}" tooltip-placement="bottom" tooltip="{{step.task}}">
+    </span></div>
+    <div class="pipeline-steps">
+    <span ng-repeat="step in pipeline.description">
+        <div class="step" tooltip-placement="bottom" tooltip="{{step.task}}">
+            <div class="inner-step {{ taskMarkup(pipeline.status, pipeline.task, step) }}">&nbsp;</div>
         </div>
+    </span>
     </div>
 </div>
+
+<!--<div class="date"> {{ pipeline.start_date }}</div>-->
+<!--<div class="task-date"> {{ pipeline.date }}</div>-->
+<!--<div class="task-name"> {{ pipeline.task }}</div>-->
+
 
 <!--<div class="name">{{step.name}}</div>-->
 <!--<div class="task">{{step.task}}</div>-->

@@ -12,10 +12,13 @@
         </div>
     </span>
     </div>
-    <div class="task-detail" ng-hide="pipeline.stepDetail === undefined">
+    <div class="step-detail" ng-hide="pipeline.stepDetail === undefined">
         <div class="name">{{pipeline.stepDetail.name}}</div>
         <div class="task">{{pipeline.stepDetail.task}}</div>
         <div class="description">{{pipeline.stepDetail.description}}</div>
+        <div class="step-detail-buttons">
+            <button type="button" class="btn btn-primary">Log File...</button>
+        </div>
     </div>
 </div>
 

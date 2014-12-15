@@ -34,4 +34,7 @@ ciControllers.controller("ProjectDetailCtrl", function ($scope, $http, $routePar
             return 'bg-active';
         }
     };
+    $scope.clickStep = function (pipeline, step) {
+        pipeline.stepDetail = pipeline.stepDetail == step ? undefined : step;
+    };
 });

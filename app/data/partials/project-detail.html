@@ -7,10 +7,15 @@
     </span></div>
     <div class="pipeline-steps">
     <span ng-repeat="step in pipeline.description">
-        <div class="step" tooltip-placement="bottom" tooltip="{{step.task}}">
-            <div class="inner-step {{ taskMarkup(pipeline.status, pipeline.task, step) }}">&nbsp;</div>
+        <div class="step" tooltip-placement="bottom" tooltip="{{step.task}}" ng-click="clickStep(pipeline, step)">
+            <div class="{{ pipeline.stepDetail == step ? 'inner-step-selected' : 'inner-step' }} {{ taskMarkup(pipeline.status, pipeline.task, step) }}"></div>
         </div>
     </span>
+    </div>
+    <div class="task-detail" ng-hide="pipeline.stepDetail === undefined">
+        <div class="name">{{pipeline.stepDetail.name}}</div>
+        <div class="task">{{pipeline.stepDetail.task}}</div>
+        <div class="description">{{pipeline.stepDetail.description}}</div>
     </div>
 </div>
 

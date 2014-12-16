@@ -6,30 +6,29 @@
         {{ pipeline.status }}
     </span></div>
     <div class="pipeline-steps">
-    <span ng-repeat="step in pipeline.description">
+        <span ng-repeat="step in pipeline.description">
         <div class="step" tooltip-placement="bottom" tooltip="{{step.task}}" ng-click="clickStep(pipeline, step)">
             <div class="{{ pipeline.stepDetail == step ? 'inner-step-selected' : 'inner-step' }} {{ taskMarkup(pipeline.status, pipeline.task, step) }}"></div>
         </div>
     </span>
     </div>
+
     <div class="step-detail" ng-hide="pipeline.stepDetail === undefined">
         <div class="name">{{pipeline.stepDetail.name}}</div>
         <div class="task">{{pipeline.stepDetail.task}}</div>
         <div class="description">{{pipeline.stepDetail.description}}</div>
+        <p class="logfile" ng-hide="pipeline.stepDetail.log === undefined">{{pipeline.stepDetail.log}}</p>
+
         <div class="step-detail-buttons">
-            <button type="button" class="btn btn-primary">Log File...</button>
+            <button type="button" class="btn btn-primary" ng-show="pipeline.stepDetail.log === undefined"
+                    ng-click="showLogFile(pipeline, pipeline.stepDetail)">Show log
+            </button>
+            <button type="button" class="btn btn-primary" ng-show="pipeline.stepDetail.log !== undefined"
+                    ng-click="showLogFile(pipeline, pipeline.stepDetail)">Refresh log
+            </button>
+            <button type="button" class="btn btn-primary" ng-show="pipeline.stepDetail.log !== undefined"
+                    ng-click="pipeline.stepDetail.log = undefined;">Hide log
+            </button>
         </div>
     </div>
 </div>
-
-<!--<div class="date"> {{ pipeline.start_date }}</div>-->
-<!--<div class="task-date"> {{ pipeline.date }}</div>-->
-<!--<div class="task-name"> {{ pipeline.task }}</div>-->
-
-
-<!--<div class="name">{{step.name}}</div>-->
-<!--<div class="task">{{step.task}}</div>-->
-<!--<div class="description">{{step.description}}</div>-->
-
-
-<!---->

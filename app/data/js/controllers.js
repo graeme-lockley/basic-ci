@@ -37,4 +37,16 @@ ciControllers.controller("ProjectDetailCtrl", function ($scope, $http, $routePar
     $scope.clickStep = function (pipeline, step) {
         pipeline.stepDetail = pipeline.stepDetail == step ? undefined : step;
     };
+    $scope.showLogFile = function (pipeline, step) {
+        var promise = $http({
+            method: 'GET',
+            url: '/api/projects/' + $scope.projectID + '/pipelines/' + pipeline.name + '/tasks/' + step.name + '/log'
+        });
+        promise.success(function (data, status, headers, config) {
+            step.log = data;
+        });
+        promise.error(function (data, status, headers, config) {
+            step.log = 'Unable to load log file: ' + data;
+        });
+    };
 });

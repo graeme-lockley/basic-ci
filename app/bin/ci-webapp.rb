@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 require 'rubygems'
 require 'sinatra'
@@ -68,7 +68,11 @@ class Project
   end
 
   def pipelines
-    @workspace.pipeline_names(@name).map { |name| Pipeline.new(@workspace, self, name) }
+    @workspace.pipeline_names(@name).map { |name| pipeline(name) }
+  end
+
+  def pipeline(name)
+    Pipeline.new(@workspace, self, name)
   end
 end
 
@@ -107,7 +111,35 @@ class Pipeline
     end
     @description
   end
+
+  def task(name)
+    Task.new(self, name)
+  end
+
+  def project_name
+    @project.name
+  end
 end
+
+class Task
+  def initialize(pipeline, name)
+    @pipeline = pipeline
+    @name = name
+  end
+
+  def log
+    `#{File.dirname(__FILE__)}/ci-pipeline.rb #{pipeline_home_dir}/#{project_name} log #{@name}`
+  end
+
+  def pipeline_home_dir
+    @pipeline.home_dir
+  end
+
+  def project_name
+    @pipeline.project_name
+  end
+end
+
 
 workspace = Workspace.new File.join (File.dirname(__FILE__) + "/../../workspace")
 
@@ -123,7 +155,7 @@ get '/api/projects' do
     if last_pipeline.nil?
       x.to_map
     else
-      x.to_map.merge({last_status: last_pipeline.to_map})
+      x.to_map.merge({:last_status => last_pipeline.to_map})
     end
   end.to_json
 end
@@ -138,5 +170,11 @@ get '/api/projects/:name' do
   content_type :json
 
   workspace.project(params[:name]).to_map.to_json
+end
+
+get '/api/projects/:name/pipelines/:pipeline/tasks/:task/log' do
+  content_type :text
+
+  workspace.project(params[:name]).pipeline(params[:pipeline]).task(params[:task]).log
 end
 

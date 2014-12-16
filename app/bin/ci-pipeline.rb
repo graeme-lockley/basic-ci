@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 require 'logger'
 require 'yaml'
@@ -117,12 +117,12 @@ class Task
 
       params = result_lines[1 .. result_lines.length].map do |x|
         components = x.split(':').map { |a| a.strip }
-        {name: components[1], type: components[2], description: components[3]}
+        {:name => components[1], :type => components[2], :description => components[3]}
       end
       s["params"] = params if !params.nil? && params.length > 0
     end
 
-    {name: @name, full_name: @full_name}.merge s
+    {:name => @name, :full_name => @full_name}.merge s
   end
 
   def log

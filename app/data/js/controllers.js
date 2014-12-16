@@ -1,11 +1,19 @@
 var ciControllers = angular.module("ciControllers", []);
 
-ciControllers.controller("ProjectsCtrl", function ($scope, $http) {
-    var promise = $http.get("/api/projects");
+ciControllers.controller("ProjectsCtrl", function ($scope, $http, $interval) {
+    $scope.refreshProjects = function () {
+        var promise = $http.get("/api/projects");
 
-    promise.success(function (response) {
-        $scope.projects = response;
-    });
+        promise.success(function (response) {
+            $scope.projects = response;
+        });
+    };
+
+    $interval(function() {
+        $scope.refreshProjects();
+    }, 5000);
+
+    $scope.refreshProjects();
 });
 
 ciControllers.controller("ProjectDetailCtrl", function ($scope, $http, $routeParams) {

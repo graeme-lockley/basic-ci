@@ -2,6 +2,7 @@
 
 require 'rubygems'
 require 'sinatra'
+require 'yaml'
 require 'json'
 
 # require_relative 'bbb'
@@ -30,6 +31,10 @@ class Workspace
     Dir["#{@home_dir}/#{project_name}/rc*"].map { |dir| dir.split('/').last }
   end
 
+  def project_home_dir(project_name)
+    "#{@home_dir}/#{project_name}"
+  end
+
   def pipeline_home_dir(project_name, pipeline_name)
     "#{@home_dir}/#{project_name}/#{pipeline_name}"
   end
@@ -53,6 +58,15 @@ class Project
   def initialize(workspace, name)
     @workspace = workspace
     @name = name
+
+    load_settings
+  end
+
+  def load_settings
+    settings_file_name = "#{@workspace.project_home_dir @name}/settings.yaml"
+    if File.exists? settings_file_name
+      @settings = YAML::load_file settings_file_name
+    end
   end
 
   def name
@@ -73,6 +87,10 @@ class Project
 
   def pipeline(name)
     Pipeline.new(@workspace, self, name)
+  end
+
+  def pipeline_root
+    @settings['pipeline_root'] || "#{@name}"
   end
 end
 
@@ -95,7 +113,7 @@ class Pipeline
 
   def refresh_status
     begin
-      @status = JSON.parse(`#{File.dirname(__FILE__)}/ci-pipeline.rb #{home_dir}/#{@project.name} status`)
+      @status = JSON.parse(`#{File.dirname(__FILE__)}/ci-pipeline.rb #{home_dir}/#{pipeline_root} status`)
     rescue
       @status = {}
     end
@@ -104,7 +122,7 @@ class Pipeline
   def description
     if @description.nil?
       begin
-        @description = JSON.parse(`#{File.dirname(__FILE__)}/ci-pipeline.rb #{home_dir}/#{@project.name} json-info`)
+        @description = JSON.parse(`#{File.dirname(__FILE__)}/ci-pipeline.rb #{home_dir}/#{pipeline_root} json-info`)
       rescue
         @description = []
       end
@@ -119,6 +137,10 @@ class Pipeline
   def project_name
     @project.name
   end
+
+  def pipeline_root
+    @project.pipeline_root
+  end
 end
 
 class Task
@@ -128,15 +150,15 @@ class Task
   end
 
   def log
-    `#{File.dirname(__FILE__)}/ci-pipeline.rb #{pipeline_home_dir}/#{project_name} log #{@name}`
+    `#{File.dirname(__FILE__)}/ci-pipeline.rb #{pipeline_home_dir}/#{pipeline_root} log #{@name}`
   end
 
   def pipeline_home_dir
     @pipeline.home_dir
   end
 
-  def project_name
-    @pipeline.project_name
+  def pipeline_root
+    @pipeline.pipeline_root
   end
 end
 
